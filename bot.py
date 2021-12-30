@@ -5,24 +5,28 @@ import argparse
 import instabot
 import sqlite3 as sl
 import json
+import os
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
 from tests import mocks
+from dotenv import load_dotenv
 
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 parser = argparse.ArgumentParser(description='A program that runs a telegram bot that goes to instagram')
 parser.add_argument('--mock', action='store_true', help='enable mock mode')
 args = parser.parse_args()
 
-# ----------
-INST_USERNAME = "fukziav@mail.ru"
-INST_PASSWORD = "y#Us)r(j2\cH2nL/l@k2]>DWIV)~vC't/<Nrlk:j"
-TOKEN = '1034004944:AAEYHq_czZ77r-XxiE34rXvDDuu53fizyHc'
-# ----------
+INST_USERNAME = os.environ.get('INST_USERNAME')
+INST_PASSWORD = os.environ.get('INST_PASSWORD')
+TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher(bot)
 
 

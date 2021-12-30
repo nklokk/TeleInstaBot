@@ -1,4 +1,4 @@
-# logs
+# Logs
 *.log
 *.stderr
 *.stdout
@@ -8,5 +8,12 @@
 __pycache__
 *.pytest_cache
 
-# db
+# Database files
 *.db
+
+# Environments
+.env
+
+# Config
+/config
+
