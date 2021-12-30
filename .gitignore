@@ -1,0 +1,10 @@
+# logs
+*.log
+*.stderr
+*.stdout
+
+# Python cache
+*.pyc
+__pycache__
+*.pytest_cache
+
