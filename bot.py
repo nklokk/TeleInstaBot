@@ -79,9 +79,10 @@ if __name__ == '__main__':
     global users_db, insta_bot
     if args.mock:
         insta_bot = mocks.MockInstagramBot()
+        users_db = sl.connect('db/test_users.db')
     else:
         insta_bot = instabot.Bot()
-    users_db = sl.connect('db/users.db')
+        users_db = sl.connect('db/users.db')
     with users_db:
         users_db.execute('''
             CREATE TABLE IF NOT EXISTS users (
