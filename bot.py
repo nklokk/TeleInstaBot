@@ -13,6 +13,7 @@ from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
 from aiogram.utils import executor
 from dotenv import load_dotenv
+from lib import keyboards as kb
 from tests import mocks
 
 
@@ -30,38 +31,8 @@ INST_USERNAME = os.environ.get('INST_USERNAME')
 INST_PASSWORD = os.environ.get('INST_PASSWORD')
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-bot = Bot(token=TELEGRAM_TOKEN)
-dp = Dispatcher(bot)
-
-
-def get_username_confirmation_keyboard(username):
-    buttons = [
-        types.InlineKeyboardButton(text='Да', callback_data='confirmation_yes_' + username),
-        types.InlineKeyboardButton(text='Нет', callback_data='confirmation_no_' + username)
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
-    return keyboard
-
-
-def get_menu_keyboard(username):
-    buttons = [
-        types.InlineKeyboardButton(text='Подписчики', callback_data='menu_followers_' + username),
-        types.InlineKeyboardButton(text='Подписки', callback_data='menu_following_' + username),
-        types.InlineKeyboardButton(text='Завершить', callback_data='menu_exit_' + username)
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=2)
-    keyboard.add(*buttons)
-    return keyboard
-
-
-def get_goto_menu_keyboard(username):
-    buttons = [
-        types.InlineKeyboardButton(text='Меню', callback_data='goto_menu_' + username),
-    ]
-    keyboard = types.InlineKeyboardMarkup(row_width=1)
-    keyboard.add(*buttons)
-    return keyboard
+telegram_bot = Bot(token=TELEGRAM_TOKEN)
+dp = Dispatcher(telegram_bot)
 
 
 @dp.message_handler(commands=['start'])
@@ -85,7 +56,7 @@ async def process_username(message: types.Message):
         username = message.text
         await message.answer(
             f'Хотите обработать аккаунт <b>{username}</b>?',
-            reply_markup=get_username_confirmation_keyboard(username),
+            reply_markup=kb.get_username_confirmation_keyboard(username),
             parse_mode=types.ParseMode.HTML
         )
 
@@ -97,7 +68,7 @@ async def process_username_confirmation_callback(call: types.CallbackQuery):
     if answer == 'yes':
         await call.message.edit_text(
             f'Username: <b>{username}</b>',
-            reply_markup=get_menu_keyboard(username),
+            reply_markup=kb.get_menu_keyboard(username),
             parse_mode=types.ParseMode.HTML
         )
     elif answer == 'no':
@@ -111,7 +82,7 @@ async def process_username_confirmation_callback(call: types.CallbackQuery):
     if answer == 'menu':
         await call.message.edit_text(
             f'Username: <b>{username}</b>',
-            reply_markup=get_menu_keyboard(username),
+            reply_markup=kb.get_menu_keyboard(username),
             parse_mode=types.ParseMode.HTML
         )
 
@@ -134,17 +105,17 @@ async def process_menu_callback(call: types.CallbackQuery):
             ]
             await call.message.edit_text(
                 '\n'.join(user_followers),
-                reply_markup=get_goto_menu_keyboard(username)
+                reply_markup=kb.get_goto_menu_keyboard(username)
             )
         else:
             await call.message.edit_text(
                 'У этого пользователя нету подписчиков =(',
-                reply_markup=get_goto_menu_keyboard(username)
+                reply_markup=kb.get_goto_menu_keyboard(username)
             )
     elif answer == 'following':
         await call.message.edit_text(
             'Будет реализовано позже',
-            reply_markup=get_goto_menu_keyboard(username)
+            reply_markup=kb.get_goto_menu_keyboard(username)
         )
 
 if __name__ == '__main__':
