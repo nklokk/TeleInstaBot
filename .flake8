@@ -1,3 +1,6 @@
 [flake8]
-exclude = .git,.pytest_cache,__pycache__
+exclude = .git, .pytest_cache, __pycache__
 max-line-length = 119
+application-import-names = lib, tests 
+import-order-style = google
+inline-quotes = '
