@@ -4,7 +4,6 @@
 import argparse
 import asyncio
 import instabot
-import json
 import logging
 import os
 import sqlite3 as sl
@@ -12,7 +11,6 @@ import sqlite3 as sl
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
-from aiogram.utils import executor
 from dotenv import load_dotenv
 from lib import keyboards as kb
 from tests import mocks
@@ -41,7 +39,7 @@ async def process_username(message: types.Message):
     if len(message.text.split()) != 1:
         await message.answer(
             'Instagram username должен состоять из <b>одного</b> слова',
-             parse_mode=types.ParseMode.HTML
+            parse_mode=types.ParseMode.HTML
         )
     else:
         username = message.text
@@ -85,7 +83,7 @@ async def process_menu_callback(call: types.CallbackQuery):
             parse_mode=types.ParseMode.HTML
         )
     elif answer == 'followers':
-        user_followers = insta_bot.get_user_followers(username) 
+        user_followers = insta_bot.get_user_followers(username)
         if user_followers:
             user_followers = [
                 insta_bot.get_username_from_user_id(user_id)
@@ -158,4 +156,3 @@ if __name__ == '__main__':
         ''')
     insta_bot.login(username=INST_USERNAME, password=INST_PASSWORD)
     asyncio.run(main())
-
