@@ -6,12 +6,12 @@ import asyncio
 import logging
 import os
 import sqlite3 as sl
+import instabot
 
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
 from dotenv import load_dotenv
-import instabot
 
 from lib import keyboards as kb
 from tests import mocks
@@ -40,7 +40,7 @@ async def process_username(message: types.Message):
     if len(message.text.split()) != 1:
         await message.answer(
             'Instagram username должен состоять из <b>одного</b> слова',
-            parse_mode=types.ParseMode.HTML
+              parse_mode=types.ParseMode.HTML
         )
     else:
         username = message.text
