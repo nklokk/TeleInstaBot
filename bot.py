@@ -3,7 +3,6 @@
 
 import argparse
 import asyncio
-import instabot
 import logging
 import os
 import sqlite3 as sl
@@ -12,6 +11,8 @@ from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
 from dotenv import load_dotenv
+import instabot
+
 from lib import keyboards as kb
 from tests import mocks
 
@@ -146,13 +147,13 @@ if __name__ == '__main__':
         insta_bot = instabot.Bot()
         users_db = sl.connect('db/users.db')
     with users_db:
-        users_db.execute('''
+        users_db.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 user_id INT,
                 username TEXT,
                 followers TEXT,
                 PRIMARY KEY (user_id)
             );
-        ''')
+        """)
     insta_bot.login(username=INST_USERNAME, password=INST_PASSWORD)
     asyncio.run(main())
