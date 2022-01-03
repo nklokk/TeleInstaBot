@@ -32,4 +32,3 @@ def get_goto_menu_keyboard(username):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(*buttons)
     return keyboard
-

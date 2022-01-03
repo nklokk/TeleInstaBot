@@ -4,6 +4,7 @@
 import random
 import string
 
+
 class MockInstagramBot:
     def __init__(self):
         pass
@@ -20,4 +21,3 @@ class MockInstagramBot:
         username_lenght = random.randint(1, 10)
         username = ''.join([random.choice(string.ascii_lowercase + string.digits) for _ in range(username_lenght)])
         return username
-
