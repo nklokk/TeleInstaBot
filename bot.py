@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 import instabot
 
 from lib import keyboards as kb
+from lib import sql_logic
 from tests import mocks
 
 
@@ -146,14 +147,6 @@ if __name__ == '__main__':
     else:
         insta_bot = instabot.Bot()
         users_db = sl.connect('db/users.db')
-    with users_db:
-        users_db.execute("""
-            CREATE TABLE IF NOT EXISTS users (
-                user_id INT,
-                username TEXT,
-                followers TEXT,
-                PRIMARY KEY (user_id)
-            );
-        """)
+    sql_logic.create_tables(users_db)
     insta_bot.login(username=INST_USERNAME, password=INST_PASSWORD)
     asyncio.run(main())
