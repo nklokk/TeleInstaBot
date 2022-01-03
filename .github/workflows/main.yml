@@ -1,0 +1,16 @@
+name: TeleInstaBot CI/CD
+
+on: push
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout our code
+        uses: actions/checkout@v2
+      - name: Install python
+        uses: actions/setup-python@v2
+      - name: Download requirements
+        run: pip install -r requirements.txt
+      - name: Run flake8
+        run: flake8 .
