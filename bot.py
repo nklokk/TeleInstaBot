@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import asyncio
 import instabot
 import json
 import logging
@@ -31,21 +32,11 @@ INST_USERNAME = os.environ.get('INST_USERNAME')
 INST_PASSWORD = os.environ.get('INST_PASSWORD')
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-telegram_bot = Bot(token=TELEGRAM_TOKEN)
-dp = Dispatcher(telegram_bot)
 
-
-@dp.message_handler(commands=['start'])
 async def process_start_command(message: types.Message):
     await message.answer('Введите username интересующего вас instagram пользователя.')
 
 
-@dp.message_handler(commands=['help'])
-async def process_help_command(message: types.Message):
-    await process_start_command(message)
-
-
-@dp.message_handler()
 async def process_username(message: types.Message):
     if len(message.text.split()) != 1:
         await message.answer(
@@ -61,7 +52,6 @@ async def process_username(message: types.Message):
         )
 
 
-@dp.callback_query_handler(Text(startswith='confirmation_'))
 async def process_username_confirmation_callback(call: types.CallbackQuery):
     answer = call.data.split('_')[1]
     username = call.data.split('_')[2]
@@ -75,8 +65,7 @@ async def process_username_confirmation_callback(call: types.CallbackQuery):
         await call.message.edit_text('Введите username еще разок')
 
 
-@dp.callback_query_handler(Text(startswith='goto_'))
-async def process_username_confirmation_callback(call: types.CallbackQuery):
+async def process_goto_callback(call: types.CallbackQuery):
     answer = call.data.split('_')[1]
     username = call.data.split('_')[2]
     if answer == 'menu':
@@ -87,7 +76,6 @@ async def process_username_confirmation_callback(call: types.CallbackQuery):
         )
 
 
-@dp.callback_query_handler(Text(startswith='menu_'))
 async def process_menu_callback(call: types.CallbackQuery):
     answer = call.data.split('_')[1]
     username = call.data.split('_')[2]
@@ -118,6 +106,39 @@ async def process_menu_callback(call: types.CallbackQuery):
             reply_markup=kb.get_goto_menu_keyboard(username)
         )
 
+
+async def start_telegram_bot():
+    telegram_bot = Bot(token=TELEGRAM_TOKEN)
+    try:
+        disp = Dispatcher(telegram_bot)
+        # register message handlers
+        disp.register_message_handler(process_start_command, commands={'start', 'help'})
+        disp.register_message_handler(process_username)
+        # register callback query handlers
+        disp.register_callback_query_handler(process_username_confirmation_callback, Text(startswith='confirmation_'))
+        disp.register_callback_query_handler(process_goto_callback, Text(startswith='goto_'))
+        disp.register_callback_query_handler(process_menu_callback, Text(startswith='menu_'))
+        await disp.start_polling()
+    finally:
+        await telegram_bot.close()
+
+
+async def start_update_db():
+    cnt = 1
+    while True:
+        print('{} seconds passed'.format(cnt))
+        cnt += 1
+        await asyncio.sleep(1)
+
+
+async def main():
+    tasks = [
+        asyncio.create_task(start_telegram_bot()),
+        asyncio.create_task(start_update_db())
+    ]
+    await asyncio.wait(tasks)
+
+
 if __name__ == '__main__':
     global users_db, insta_bot
     if args.mock:
@@ -136,5 +157,5 @@ if __name__ == '__main__':
             );
         ''')
     insta_bot.login(username=INST_USERNAME, password=INST_PASSWORD)
-    executor.start_polling(dp)
+    asyncio.run(main())
 
