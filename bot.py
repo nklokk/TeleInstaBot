@@ -5,6 +5,7 @@ import argparse
 import asyncio
 import logging
 import os
+import random
 import sqlite3 as sl
 
 from aiogram import Bot, types
@@ -53,8 +54,7 @@ async def process_username(message: types.Message):
 
 
 async def process_username_confirmation_callback(call: types.CallbackQuery):
-    answer = call.data.split('_')[1]
-    username = call.data.split('_')[2]
+    _, answer, username = call.data.split('_')
     if answer == 'yes':
         await call.message.edit_text(
             f'Username: <b>{username}</b>',
@@ -66,8 +66,7 @@ async def process_username_confirmation_callback(call: types.CallbackQuery):
 
 
 async def process_goto_callback(call: types.CallbackQuery):
-    answer = call.data.split('_')[1]
-    username = call.data.split('_')[2]
+    _, answer, username = call.data.split('_')
     if answer == 'menu':
         await call.message.edit_text(
             f'Username: <b>{username}</b>',
@@ -76,34 +75,50 @@ async def process_goto_callback(call: types.CallbackQuery):
         )
 
 
+async def process_follow_callback(call: types.CallbackQuery):
+    _, answer, username, follow = call.data.split('_')
+    if answer == 'random':
+        if follow == 'followers':
+            user_follow = insta_bot.get_user_followers(username)
+        elif follow == 'following':
+            user_follow = insta_bot.get_user_following(username)
+        if user_follow:
+            random_user_id = random.choice(user_follow)
+            random_username = insta_bot.get_username_from_user_id(random_user_id)
+            await call.message.edit_text(
+                f'Выбран пользователь: <b>{random_username}</b>',
+                reply_markup=kb.get_goto_menu_keyboard(username),
+                parse_mode=types.ParseMode.HTML
+            )
+        else:
+            if follow == 'followers':
+                text = 'У этого пользователя нету подписчиков =('
+            elif follow == 'following':
+                text = 'У этого пользователя нету подписок =('
+            await call.message.edit_text(
+                text,
+                reply_markup=kb.get_goto_menu_keyboard(username)
+            )
+
+
 async def process_menu_callback(call: types.CallbackQuery):
-    answer = call.data.split('_')[1]
-    username = call.data.split('_')[2]
+    _, answer, username = call.data.split('_')
     if answer == 'exit':
         await call.message.edit_text(
             f'Обработка аккаунта <b>{username}</b> завершена',
             parse_mode=types.ParseMode.HTML
         )
     elif answer == 'followers':
-        user_followers = insta_bot.get_user_followers(username)
-        if user_followers:
-            user_followers = [
-                insta_bot.get_username_from_user_id(user_id)
-                for user_id in user_followers[:5]
-            ]
-            await call.message.edit_text(
-                '\n'.join(user_followers),
-                reply_markup=kb.get_goto_menu_keyboard(username)
-            )
-        else:
-            await call.message.edit_text(
-                'У этого пользователя нету подписчиков =(',
-                reply_markup=kb.get_goto_menu_keyboard(username)
-            )
+        await call.message.edit_text(
+            f'Username: <b>{username}</b>',
+            reply_markup=kb.get_follow_keyboard(username, 'followers'),
+            parse_mode=types.ParseMode.HTML
+        )
     elif answer == 'following':
         await call.message.edit_text(
-            'Будет реализовано позже',
-            reply_markup=kb.get_goto_menu_keyboard(username)
+            f'Username: <b>{username}</b>',
+            reply_markup=kb.get_follow_keyboard(username, 'following'),
+            parse_mode=types.ParseMode.HTML
         )
 
 
@@ -118,17 +133,18 @@ async def start_telegram_bot():
         disp.register_callback_query_handler(process_username_confirmation_callback, Text(startswith='confirmation_'))
         disp.register_callback_query_handler(process_goto_callback, Text(startswith='goto_'))
         disp.register_callback_query_handler(process_menu_callback, Text(startswith='menu_'))
+        disp.register_callback_query_handler(process_follow_callback, Text(startswith='follow_'))
         await disp.start_polling()
     finally:
         await telegram_bot.close()
 
 
 async def start_update_db():
-    cnt = 1
+    cnt = 0
     while True:
         print('{} seconds passed'.format(cnt))
-        cnt += 1
-        await asyncio.sleep(1)
+        cnt += 10
+        await asyncio.sleep(10)
 
 
 async def main():
