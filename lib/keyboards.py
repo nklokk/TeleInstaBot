@@ -7,7 +7,7 @@ from aiogram import types
 def get_username_confirmation_keyboard(username: str):
     buttons = [
         types.InlineKeyboardButton(text='Да', callback_data='_'.join(['confirmation', 'yes', username])),
-        types.InlineKeyboardButton(text='Нет', callback_data='_'.join(['confirmation', 'yes', username]))
+        types.InlineKeyboardButton(text='Нет', callback_data='_'.join(['confirmation', 'no', username]))
     ]
     keyboard = types.InlineKeyboardMarkup(row_width=2)
     keyboard.add(*buttons)
